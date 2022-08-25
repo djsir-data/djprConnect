@@ -1,0 +1,22 @@
+Package: djprConnect
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Who wrote it
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+LazyData: true
+Import:
+  assertthat,
+  DBI,
+  glue,
+  RPostgres
+Suggests: 
+    testthat (>= 3.0.0),
+    usethis
+Config/testthat/edition: 3
+RoxygenNote: 7.1.2
