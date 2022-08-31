@@ -7,7 +7,7 @@
 djpr_connect(
   db = c("opendata", "official_sensitive"),
   user = c("open", "super"),
-  config = FALSE,
+  use_config = FALSE,
   ...
 )
 }

@@ -8,6 +8,7 @@
 #'
 #' @param db
 #' @param user
+#' @param use_config
 #' @param ... additional arguments passed to [config::get()]
 #'
 #' @import DBI
@@ -23,9 +24,9 @@
 #' \dontrun{
 #' djpr_connect()
 #' }
-djpr_connect <- function(db = c("opendata", "official_sensitive"), user = c('open','super'), config = FALSE, ...){
+djpr_connect <- function(db = c("opendata", "official_sensitive"), user = c('open','super'), use_config = FALSE, ...){
 
-  if (config) {
+  if (use_config) {
 
     # look for existing credentials
     creds <- tryCatch({config::get("dataconnection", ...)},
