@@ -12,6 +12,7 @@ Roxygen: list(markdown = TRUE)
 LazyData: true
 Import:
   assertthat,
+  config,
   DBI,
   glue,
   RPostgres
