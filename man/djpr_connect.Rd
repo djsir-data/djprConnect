@@ -6,15 +6,24 @@
 \usage{
 djpr_connect(
   db = c("opendata", "official_sensitive"),
-  user = c("open", "super")
+  user = c("open", "super"),
+  config = FALSE,
+  ...
 )
 }
 \arguments{
-\item{user}{}
+\item{...}{additional arguments passed to \code{\link[config:get]{config::get()}}}
 }
 \value{
 
 }
 \description{
-DJPR PostgreSQL Database Connections
+Connect to the DJPR AWS PostgreSQL server and databases. All
+users must have authentication details stored as environment variables.
+You can add these via \code{\link[usethis:edit]{usethis::edit_r_environ()}}
+}
+\examples{
+\dontrun{
+djpr_connect()
+}
 }

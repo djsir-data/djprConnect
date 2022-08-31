@@ -2,12 +2,17 @@
 
 
 #' @title DJPR PostgreSQL Database Connections
+#' @description Connect to the DJPR AWS PostgreSQL server and databases. All
+#' users must have authentication details stored as environment variables.
+#' You can add these via [usethis::edit_r_environ()]
 #'
 #' @param db
 #' @param user
+#' @param ... additional arguments passed to [config::get()]
 #'
 #' @import DBI
 #' @import glue
+#' @import config
 #' @importFrom assertthat assert_that
 #' @importFrom RPostgres Postgres
 #'
@@ -15,34 +20,62 @@
 #' @export
 #'
 #' @examples
-djpr_connect <- function(db = c("opendata", "official_sensitive"), user = c('open','super')){
+#' \dontrun{
+#' djpr_connect()
+#' }
+djpr_connect <- function(db = c("opendata", "official_sensitive"), user = c('open','super'), config = FALSE, ...){
 
-  db <- match.arg(db)
-  user <- match.arg(user)
+  if (config) {
 
-  if (db == "official_sensitive") assertthat::assert_that(user == 'super', mgs = 'You must use super user credientials to access the {db} database')
+    # look for existing credentials
+    creds <- tryCatch({config::get("dataconnection", ...)},
+                      error = function(e){
+                        message(e)
+                        NULL
+                      })
+    if (!is.null(creds)) {
+      for (i in 1:length(creds)) assign(toupper(names(creds)[i]), creds[[i]])
+    } else {
+      assertthat::assert_that(FALSE, msg = 'config.yml file could not be found')
+    }
 
-  if (user == 'open') {
-    USER_ENV <- 'PG_READ_OPEN_USER'
-    PW_ENV <- 'PG_READ_OPEN_PW'
-  } else if (user == 'super') {
-    USER_ENV <- 'PG_SUSER'
-    PW_ENV <- 'PG_SUSER_PW'
+  } else {
+
+    db <- match.arg(db)
+    user <- match.arg(user)
+
+    if (db == "official_sensitive") assertthat::assert_that(user == 'super', msg = glue('You must use super user credientials to access the {db} database'))
+
+    if (user == 'open') {
+      USER_ENV <- 'PG_READ_OPEN_USER'
+      PW_ENV <- 'PG_READ_OPEN_PW'
+    } else if (user == 'super') {
+      USER_ENV <- 'PG_SUSER'
+      PW_ENV <- 'PG_SUSER_PW'
+    }
+
+    # check environment variables exists
+    assertthat::assert_that(USER_ENV %in% names(Sys.getenv()),
+                            msg = glue::glue('User not found, use usethis::edit_r_environ() to add a {USER_ENV} environment variable'))
+    assertthat::assert_that(PW_ENV %in% names(Sys.getenv()),
+                            msg = glue::glue('Password not found, use usethis::edit_r_environ() to add a {PW_ENV} environment variable'))
+
+    HOST <- '10.210.1.26'
+    DBNAME <- db
+    USER <- Sys.getenv(USER_ENV)
+    PASSWORD <- Sys.getenv(PW_ENV)
+    PORT <- 443
+    USE_DBCACHE <- FALSE # not currently used
+
   }
-
-  # check env exists
-  assertthat::assert_that(USER_ENV %in% names(Sys.getenv()),
-                          msg = glue::glue('User not found, use usethis::edit_r_environ() to add a {USER_ENV} environment variable'))
-  assertthat::assert_that(PW_ENV %in% names(Sys.getenv()),
-                          msg = glue::glue('Password not found, use usethis::edit_r_environ() to add a {PW_ENV} environment variable'))
 
   DBI::dbConnect(
     drv = RPostgres::Postgres(),
-    host = '10.210.1.26',
-    dbname = db,
-    user = Sys.getenv(USER_ENV),
-    password = Sys.getenv(PW_ENV),
-    port = 443
+    host = HOST,
+    dbname = DBNAME,
+    user = USER,
+    password = PASSWORD,
+    port = PORT
   )
 
 }
