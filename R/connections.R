@@ -26,6 +26,9 @@
 #' }
 djpr_connect <- function(db = c("opendata", "official_sensitive"), user = c('open','super'), use_config = FALSE, ...){
 
+  # override config option based on context
+  if (Sys.getenv('R_CONFIG_ACTIVE') == 'github') use_config <- TRUE
+
   if (use_config) {
 
     # look for existing credentials
